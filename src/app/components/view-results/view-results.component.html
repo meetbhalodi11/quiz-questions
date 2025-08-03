@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>Results</h2>
+<mat-dialog-content [formGroup]="questionFormGroup">
+
+    <div formArrayName="questions">
+        <ng-container *ngFor="let question of questionsFormArray.controls; let i = index">
+            <!-- individual question container -->
+            <div class="display-question">
+                <div class="question-header">
+                    <span>Question {{ i + 1 }} / {{ questionsFormArray.length }}</span>
+                </div>
+                <app-question [questionIndex]="i" [formControlName]="i" [showAnswers]="true"></app-question>
+            </div>
+
+        </ng-container>
+    </div>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close (click)="closeDialog(false)">Close</button>
+</mat-dialog-actions>

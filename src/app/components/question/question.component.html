@@ -1,0 +1,21 @@
+<div class="question-container" [formGroup]="questionFormGroup">
+    <div class="question-header">
+        <div class="question-header-text">{{ questionFormGroup.get('name')?.value }}</div>
+    </div>
+    <div class="question-options" formArrayName="options">
+        <div class="question-option" *ngFor="let optionControl of optionsFormArray.controls; let i = index"
+            [formGroupName]="i">
+            <mat-checkbox class="example-margin" formControlName="isSelected" (change)="onOptionChange()" />
+            <label>{{ optionControl.value.name }}</label>
+
+            <!-- Not ideal practive to add inline css but added for the sake of time -->
+            @if (showAnswers) {
+            @if (optionControl.get('isCorrect')?.value === true) {
+            <mat-icon style="color: green; font-size: 16px; display: flex; align-items: center;">check</mat-icon>
+            } @else if (optionControl.get('isCorrect')?.value === false) {
+            <mat-icon style="color: red; font-size: 16px; display: flex; align-items: center;">close</mat-icon>
+            }
+            }
+        </div>
+    </div>
+</div>

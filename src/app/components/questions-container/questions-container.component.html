@@ -1,0 +1,41 @@
+<div class="main-questions-container" [formGroup]="questionFormGroup">
+    <mat-toolbar class="main-toolbar">
+        <span>Test Quiz</span>
+        <span class="example-spacer"></span>
+        @if (isQuizSubmitted | async) {
+        <button mat-flat-button mat-primary (click)="viewResults()">View
+            Results</button>
+        } @else {
+        <button mat-flat-button mat-primary (click)="submitQuiz()">Submit
+        </button>
+        }
+    </mat-toolbar>
+
+    <div class="questions-wrapper" formArrayName="questions">
+        <ng-container *ngFor="let question of questionsFormArray.controls; let i = index">
+
+            <!-- individual question container -->
+            <div class="question-individual" *ngIf="currentQuestionIndex === i">
+                <div class="question-header">
+                    <span>Question {{ currentQuestionIndex + 1 }} / {{ questionsFormArray.length }}</span>
+                </div>
+                <app-question [questionIndex]="i" [formControlName]="i"></app-question>
+
+                <!-- buttons -->
+                <div class="buttons-container">
+                    <button mat-button mat-primary [disabled]="currentQuestionIndex === 0"
+                        (click)="previousQuestion()">Previous</button>
+                    <button *ngIf="questionsFormArray.length === currentQuestionIndex + 1" mat-flat-button mat-primary
+                        (click)="submitQuiz()" [disabled]="(isQuizSubmitted | async)">Submit</button>
+                    <button *ngIf="questionsFormArray.length > currentQuestionIndex + 1" mat-flat-button mat-primary
+                        (click)="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+        </ng-container>
+    </div>
+
+    <div class="reset-quiz-container">
+        <button mat-button mat-primary (click)="resetQuiz()">Reset quiz / local storage</button>
+    </div>
+</div>

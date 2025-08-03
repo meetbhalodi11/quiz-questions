@@ -1,0 +1,25 @@
+.question-container {
+    .question-header {
+        margin-bottom: 16px;
+
+        .question-header-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    }
+
+    .question-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 200px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .question-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+}
