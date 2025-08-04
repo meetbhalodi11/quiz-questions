@@ -5,7 +5,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DataTransferService } from '../../services/data-transfer.service';
 import { Observable, take } from 'rxjs';
-import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationComponent } from '../confirmation/confirmation.component';
@@ -13,12 +19,19 @@ import { ViewResultsComponent } from '../view-results/view-results.component';
 
 @Component({
   selector: 'app-questions-container',
-  imports: [QuestionComponent, MatIconModule, MatButtonModule, MatToolbarModule, ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [
+    QuestionComponent,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    ReactiveFormsModule,
+    FormsModule,
+    CommonModule,
+  ],
   templateUrl: './questions-container.component.html',
   styleUrl: './questions-container.component.scss',
   standalone: true,
 })
-
 export class QuestionsContainerComponent implements OnInit {
   public questionFormGroup: FormGroup;
 
@@ -30,9 +43,12 @@ export class QuestionsContainerComponent implements OnInit {
     return this.questionFormGroup.get('questions') as FormArray;
   }
 
-  constructor(private dataTransferService: DataTransferService, private matDialog: MatDialog,) {
+  constructor(
+    private dataTransferService: DataTransferService,
+    private matDialog: MatDialog
+  ) {
     this.questionFormGroup = new FormGroup({
-      questions: new FormArray([])
+      questions: new FormArray([]),
     });
 
     const quizSubmitted = localStorage.getItem('quiz-submitted');
@@ -44,13 +60,15 @@ export class QuestionsContainerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dataTransferService.getQuestions().pipe(take(1)).subscribe((questions) => {
-      questions.forEach((question: any) => {
-        this.addQuestion(question);
+    this.dataTransferService
+      .getQuestions()
+      .pipe(take(1))
+      .subscribe((questions) => {
+        questions.forEach((question: any) => {
+          this.addQuestion(question);
+        });
       });
-    });
   }
-
 
   private addQuestion(question: any) {
     this.questionsFormArray.push(new FormControl(question));
@@ -75,14 +93,25 @@ export class QuestionsContainerComponent implements OnInit {
   }
 
   private saveAnswersToLocalStorage() {
-    const currentQuestionGroup = this.questionsFormArray.at(this.currentQuestionIndex);
+    const currentQuestionGroup = this.questionsFormArray.at(
+      this.currentQuestionIndex
+    );
     if (!currentQuestionGroup?.pristine) {
       const currentQuestionValue = currentQuestionGroup.getRawValue();
-      const outDatedQuestionValue = structuredClone(JSON.parse(localStorage.getItem('quiz-answers') ?? '[]'));
+      const outDatedQuestionValue = structuredClone(
+        JSON.parse(localStorage.getItem('quiz-answers') ?? '[]')
+      );
       localStorage.removeItem('quiz-answers');
       outDatedQuestionValue[this.currentQuestionIndex] = currentQuestionValue;
-      localStorage.setItem('quiz-answers', JSON.stringify(outDatedQuestionValue));
+      localStorage.setItem(
+        'quiz-answers',
+        JSON.stringify(outDatedQuestionValue)
+      );
     }
+  }
+
+  public handleOnQuestionChange() {
+    this.saveAnswersToLocalStorage();
   }
 
   public viewResults() {

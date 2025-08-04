@@ -1,6 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, Component, forwardRef, Input, OnInit } from '@angular/core';
-import { ControlValueAccessor, FormArray, FormControl, FormGroup, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  AfterContentInit,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  FormArray,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DataTransferService } from '../../services/data-transfer.service';
 import { take } from 'rxjs';
@@ -8,20 +24,32 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-question',
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, MatCheckboxModule, MatIconModule],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    CommonModule,
+    MatCheckboxModule,
+    MatIconModule,
+  ],
   templateUrl: './question.component.html',
   styleUrl: './question.component.scss',
   standalone: true,
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => QuestionComponent),
-    multi: true,
-  },]
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => QuestionComponent),
+      multi: true,
+    },
+  ],
 })
-export class QuestionComponent implements AfterContentInit, ControlValueAccessor, OnInit {
+export class QuestionComponent
+  implements AfterContentInit, ControlValueAccessor, OnInit
+{
   @Input() questionIndex = 0;
 
   @Input() showAnswers = false;
+
+  @Output() onQuestionChange = new EventEmitter();
 
   private answers: any = {};
 
@@ -35,15 +63,18 @@ export class QuestionComponent implements AfterContentInit, ControlValueAccessor
     this.questionFormGroup = new FormGroup({
       id: new FormControl(''),
       name: new FormControl(''),
-      options: new FormArray([])
+      options: new FormArray([]),
     });
   }
 
   ngOnInit(): void {
     if (this.showAnswers) {
-      this.dataTransferService.getAnswers().pipe(take(1)).subscribe((answers) => {
-        this.answers = answers;
-      });
+      this.dataTransferService
+        .getAnswers()
+        .pipe(take(1))
+        .subscribe((answers) => {
+          this.answers = answers;
+        });
     }
   }
 
@@ -53,15 +84,20 @@ export class QuestionComponent implements AfterContentInit, ControlValueAccessor
       const savedQuestionWithAnswers = JSON.parse(questionFromLocalStorage);
       const currentQuestion = savedQuestionWithAnswers[this.questionIndex];
       if (currentQuestion) {
-        const selectedOptionsHash: any = currentQuestion.options.reduce((acc: any, option: any) => {
-          acc[option.id] = option.isSelected;
-          return acc;
-        }, {});
+        const selectedOptionsHash: any = currentQuestion.options.reduce(
+          (acc: any, option: any) => {
+            acc[option.id] = option.isSelected;
+            return acc;
+          },
+          {}
+        );
 
         this.optionsFormArray.controls.forEach((option: any) => {
           const isSelected = option.get('isSelected')?.value;
           if (!isSelected) {
-            option.get('isSelected')?.setValue(selectedOptionsHash[option.value.id] ?? false);
+            option
+              .get('isSelected')
+              ?.setValue(selectedOptionsHash[option.value.id] ?? false);
           }
         });
       }
@@ -70,7 +106,13 @@ export class QuestionComponent implements AfterContentInit, ControlValueAccessor
     if (this.showAnswers) {
       this.optionsFormArray.controls.forEach((option: any) => {
         if (option.get('isSelected')?.value) {
-          option.get('isCorrect')?.setValue(this.answers[this.questionFormGroup?.get('id')?.value][option.value.id] ?? false);
+          option
+            .get('isCorrect')
+            ?.setValue(
+              this.answers[this.questionFormGroup?.get('id')?.value][
+                option.value.id
+              ] ?? false
+            );
         }
       });
     }
@@ -92,9 +134,9 @@ export class QuestionComponent implements AfterContentInit, ControlValueAccessor
     });
   }
 
-  private onChange: (value: any) => void = () => { };
+  private onChange: (value: any) => void = () => {};
 
-  private onTouched: (value: any) => void = () => { };
+  private onTouched: (value: any) => void = () => {};
 
   registerOnChange(fn: any): void {
     this.onChange && (this.onChange = fn);
@@ -109,12 +151,13 @@ export class QuestionComponent implements AfterContentInit, ControlValueAccessor
       id: new FormControl(option.id ?? ''),
       name: new FormControl(option.name ?? ''),
       isSelected: new FormControl(option.isSelected ?? false),
-      isCorrect: new FormControl()
+      isCorrect: new FormControl(),
     });
     this.optionsFormArray.push(optionFormGroup);
   }
 
   public onOptionChange() {
     this.onChange(this.questionFormGroup.getRawValue());
+    this.onQuestionChange.emit();
   }
-} 
+}
